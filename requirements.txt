@@ -1,0 +1,10 @@
+flask
+requests
+playwright
+gunicorn
+pdfplumber
+pandas
+pytesseract
+Pillow
+openai
+python-dotenv
