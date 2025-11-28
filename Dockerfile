@@ -1,7 +1,12 @@
-# Use official Python slim image
-FROM python:3.11-slim
+# Use official Python image
+FROM python:3.12-slim
 
-# Install system dependencies for headless browsers
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+# Install system dependencies for Playwright
 RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     libnss3 \
@@ -13,33 +18,29 @@ RUN apt-get update && apt-get install -y \
     libxdamage1 \
     libxrandr2 \
     libgbm1 \
-    libpango-1.0-0 \
     libatk-bridge2.0-0 \
     libgtk-3-0 \
-    wget \
-    curl \
-    unzip \
-    ca-certificates \
+    libx11-6 \
+    libxfixes3 \
+    wget curl unzip \
     fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Set work directory
 WORKDIR /app
 
-# Copy Python dependencies
-COPY requirements.txt .
+# Copy project files
+COPY . /app
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
-# Copy project code
-COPY . .
-
-# Install Playwright browsers (Chromium, Firefox, WebKit)
+# Install Playwright browsers
 RUN python -m playwright install --with-deps
 
 # Expose port
-ENV PORT 8000
+EXPOSE 8000
 
-# Start the application
+# Start the Flask app
 CMD ["python", "app.py"]
